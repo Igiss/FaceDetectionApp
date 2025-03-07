@@ -3,11 +3,13 @@ package com.example.facedetectionapp;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
@@ -30,6 +32,11 @@ import com.google.mlkit.vision.face.FaceDetection;
 import com.google.mlkit.vision.face.FaceDetector;
 import com.google.mlkit.vision.face.FaceDetectorOptions;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -41,6 +48,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CAMERA_PERMISSION = 100;
     private boolean useFrontCamera = false; // Mặc định dùng camera sau
 
+    static final String DATA_NAME = "database_FaceDetection.db";
+    static final String DB_PATH = "/databases/";
+    SQLiteDatabase database = null;
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +81,44 @@ public class MainActivity extends AppCompatActivity {
                 startCamera();
             });
         }
+        processCopyDatabase();
+
+    }
+    private void Copydatabase() {
+        try {
+            InputStream myinput = getAssets().open(DATA_NAME);
+            String outputfilename =getDatabasePath();
+            File filedb = new File(getApplicationInfo().dataDir+DB_PATH);
+            if (!filedb.exists()) {
+                filedb.mkdirs();
+            }
+            OutputStream output = new FileOutputStream( outputfilename );
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = myinput.read(buffer)) > 0)
+                output.write(buffer, 0, length);
+            output.flush();
+            output.close();
+            myinput.close();
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    private void processCopyDatabase() {
+        try {
+            File file = getDatabasePath(DATA_NAME);
+            if (!file.exists()) {
+                Copydatabase();
+            } else
+                Toast.makeText(this, "Database đã tồn tại", Toast.LENGTH_LONG).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String getDatabasePath() {
+        return getApplicationInfo().dataDir+DB_PATH+DATA_NAME;
+
     }
 
     private void startCamera() {

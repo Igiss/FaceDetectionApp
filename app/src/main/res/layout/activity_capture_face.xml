@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Preview camera -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="150dp"
+        android:layout_height="220dp"
+        android:layout_gravity="center"
+        app:cardCornerRadius="100dp"
+        app:cardElevation="4dp">
+
+        <androidx.camera.view.PreviewView
+            android:id="@+id/previewView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop" />
+    </androidx.cardview.widget.CardView>
+
+    <!-- Overlay để hiển thị khuôn mặt được phát hiện -->
+    <com.example.facedetectionapp.FaceOverlayView
+        android:id="@+id/faceOverlayView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Nút bấm để chụp ảnh -->
+    <ImageButton
+        android:id="@+id/imgbtnCapture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:layout_marginBottom="40dp"
+        app:srcCompat="@android:drawable/ic_menu_camera"
+        android:contentDescription="Capture face" />
+
+</FrameLayout>
