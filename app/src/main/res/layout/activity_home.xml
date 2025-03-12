@@ -10,20 +10,26 @@
 
     <Button
         android:id="@+id/btnAddFace"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:layout_marginTop="250dp"
+        android:layout_marginBottom="30dp"
         android:text="Thêm khuôn mặt mới" />
 
     <Button
-        android:id="@+id/btnFaceDetection"
-        android:layout_width="wrap_content"
+        android:id="@+id/btnListFace"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Nhân diện khuôn mặt" />
+        android:layout_gravity="bottom|center"
+        android:layout_marginBottom="30dp"
+        android:text="Danh sách khuôn mặt" />
 
     <Button
-        android:id="@+id/btnListFace"
-        android:layout_width="wrap_content"
+        android:id="@+id/btnFaceDetection"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Danh sách khuôn mặt" />
+        android:layout_marginBottom="30dp"
+        android:text="Nhân diện khuôn mặt" />
 
 </LinearLayout>
