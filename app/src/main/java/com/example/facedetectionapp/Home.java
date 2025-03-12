@@ -32,21 +32,16 @@ public class Home extends AppCompatActivity {
         btnListFace = findViewById(R.id.btnListFace);
         btnAddFace.setOnClickListener(v -> {
             Intent intent = new Intent(Home.this, CaptureFaceActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Để xóa CaptureFaceActivity khỏi stack
             startActivity(intent);
-            finish(); // Đóng activity hiện tại để không quay lại
         });
         btnFaceDetection.setOnClickListener(v -> {
             Intent intent = new Intent(Home.this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Để xóa CaptureFaceActivity khỏi stack
             startActivity(intent);
-            finish(); // Đóng activity hiện tại để không quay lại
         });
         btnListFace.setOnClickListener(v -> {
             Intent intent = new Intent(Home.this, ListFace.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Để xóa CaptureFaceActivity khỏi stack
+
             startActivity(intent);
-            finish();
         });
 
 

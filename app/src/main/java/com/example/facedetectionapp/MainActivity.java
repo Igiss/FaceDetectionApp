@@ -154,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
             if (!file.exists()) {
                 copyDatabase();
             } else {
-                Toast.makeText(this, "Database đã tồn tại", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Đã có Database", Toast.LENGTH_LONG).show();
             }
         } catch (Exception e) {
             e.printStackTrace();

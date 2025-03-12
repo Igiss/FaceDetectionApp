@@ -135,7 +135,6 @@ public class ListFace extends AppCompatActivity {
             Toast.makeText(this, "Không tìm thấy khuôn mặt cần xóa", Toast.LENGTH_SHORT).show();
         }
 
-        // Đóng cơ sở dữ liệu
         db.close();
     }
 

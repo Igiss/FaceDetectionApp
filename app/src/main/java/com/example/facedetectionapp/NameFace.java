@@ -15,8 +15,7 @@ public class NameFace extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "database_FaceDetection.db";
     private static final int DATABASE_VERSION = 1;
     private static final String TABLE_NAME = "faces";
-    private static final String COLUMN_NAME = "name";
-    private static final String COLUMN_FACE_DATA = "face_data";
+
 
     public NameFace(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -64,7 +63,7 @@ public class NameFace extends SQLiteOpenHelper {
         }
 
         cursor.close();
-        return bestSimilarity >= 0.6 ? bestMatch : "Error";
+        return bestSimilarity >= 0.993 ? bestMatch : "Error";
     }
 
     private float[] convertBlobToFeatureVector(byte[] blob) {
