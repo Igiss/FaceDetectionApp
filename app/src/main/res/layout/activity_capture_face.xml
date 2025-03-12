@@ -6,19 +6,13 @@
     android:layout_height="match_parent">
 
     <!-- Preview camera -->
-    <androidx.cardview.widget.CardView
-        android:layout_width="150dp"
-        android:layout_height="220dp"
-        android:layout_gravity="center"
-        app:cardCornerRadius="100dp"
-        app:cardElevation="4dp">
 
         <androidx.camera.view.PreviewView
             android:id="@+id/previewView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop" />
-    </androidx.cardview.widget.CardView>
+
 
     <!-- Overlay để hiển thị khuôn mặt được phát hiện -->
     <com.example.facedetectionapp.FaceOverlayView

@@ -82,9 +82,6 @@ public class ListFace extends AppCompatActivity {
 
     }
 
-
-
-
     private List<clsFace> getFacesFromDatabase() {
         List<clsFace> faceList = new ArrayList<>();
         SQLiteDatabase db = openOrCreateDatabase("database_FaceDetection.db", MODE_PRIVATE, null);
@@ -95,7 +92,6 @@ public class ListFace extends AppCompatActivity {
         while (cursor.moveToNext()) {
             String name = cursor.getString(1); // Lấy tên
             String ma = cursor.getString(0);   // Lấy mã
-
 
             // Khởi tạo đối tượng clsFace với 2 tham số
             clsFace face = new clsFace(ma, name);
