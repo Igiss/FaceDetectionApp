@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Khởi tạo các view
         previewView = findViewById(R.id.previewView);
-        tvResult = findViewById(R.id.tvResult);
+
         faceOverlayView = findViewById(R.id.faceOverlayView);
 
         // Kiểm tra quyền Camera
@@ -129,7 +129,6 @@ public class MainActivity extends AppCompatActivity {
             Log.e("FaceRecognition", "Không đủ keypoints! Số lượng: " + keyPoints.size());
             return new float[0];
         }
-
         // Đảm bảo feature vector luôn có đúng 128 phần tử
         float[] featureVector = new float[128];
         for (int i = 0; i < 64; i++) {
@@ -145,22 +144,16 @@ public class MainActivity extends AppCompatActivity {
         Log.d("FaceRecognition", "Feature vector mới: " + Arrays.toString(featureVector) + " | Kích thước: " + featureVector.length);
         return featureVector;
     }
-
-
-
     private void processCopyDatabase() {
         try {
             File file = getDatabasePath(DATA_NAME);
             if (!file.exists()) {
                 copyDatabase();
-            } else {
-                Toast.makeText(this, "Đã có Database", Toast.LENGTH_LONG).show();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
     private void copyDatabase() {
         try {
             InputStream myInput = getAssets().open(DATA_NAME);
@@ -182,15 +175,12 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
     private String getDatabasePath() {
         return getApplicationInfo().dataDir + DB_PATH + DATA_NAME;
     }
 
     private void startCamera() {
-        ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
-                ProcessCameraProvider.getInstance(this);
-
+        ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         cameraProviderFuture.addListener(() -> {
             try {
                 ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
@@ -236,8 +226,6 @@ public class MainActivity extends AppCompatActivity {
                     .setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)   // Thêm cái này để lấy đường viền khuôn mặt
                     .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
                     .build();
-
-
 
             FaceDetector detector = FaceDetection.getClient(options);
 

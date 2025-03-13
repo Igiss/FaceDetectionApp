@@ -8,6 +8,15 @@
     android:orientation="vertical"
     tools:context=".Home">
 
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme" />
+
     <Button
         android:id="@+id/btnAddFace"
         android:layout_width="match_parent"
@@ -31,5 +40,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="30dp"
         android:text="Nhân diện khuôn mặt" />
+
+
 
 </LinearLayout>
