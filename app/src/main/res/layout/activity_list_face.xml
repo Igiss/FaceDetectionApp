@@ -4,40 +4,69 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
+
     android:orientation="vertical"
-    app:layoutDescription="@xml/activity_list_face_scene"
     tools:context=".ListFace">
 
+    <!-- Tiêu đề -->
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:text="Danh Sách Khuôn Mặt"
+        android:textSize="20sp"
+        android:gravity="center"
+        android:textStyle="bold" />
+
+    <!-- Danh sách khuôn mặt -->
     <ListView
         android:id="@+id/lvDanhsach"
         android:layout_width="match_parent"
-        android:layout_height="500dp"
-        android:layout_marginTop="10dp"/>
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_margin="10dp"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="1dp"
+        />
 
+    <!-- Hàng chứa các nút bấm -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:layout_marginTop="20dp">
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="16dp"
+        android:orientation="horizontal">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnDeleteFace"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:minHeight="48dp"
-            android:layout_margin="10dp"
-            android:text="Xóa Khuôn mặt" />
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:text="Xóa Khuôn Mặt"
 
-        <Button
+            app:cornerRadius="8dp"
+            app:icon="@drawable/delete"
+            app:iconGravity="start" />
+
+        <View
+            android:layout_width="10dp"
+            android:layout_height="match_parent"/>
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAddFace"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:minHeight="48dp"
-            android:layout_margin="10dp"
-            android:text="Thêm Khuôn mặt" />
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:text="Thêm Khuôn Mặt"
+
+            app:cornerRadius="8dp"
+            app:icon="@drawable/addface"
+            app:iconGravity="start" />
+
     </LinearLayout>
 
 </LinearLayout>

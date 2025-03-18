@@ -1,30 +1,39 @@
 package com.example.facedetectionapp;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
+import androidx.appcompat.widget.Toolbar;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.Executors;
 
 public class Home extends AppCompatActivity {
     static final String DATA_NAME = "database_FaceDetection.db";
     static final String DB_PATH = "/databases/";
-    SQLiteDatabase database = null;
+    Toolbar toolbar;
+    private static final int REQUEST_CAMERA_PERMISSION = 100;
     Button btnAddFace,btnFaceDetection, btnListFace;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,17 +45,41 @@ public class Home extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        // Kiểm tra quyền Camera
+        checkCameraPermission();
         processCopyDatabase();
         handleEvents();
 
+    }
+    private void checkCameraPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+        }
+    }
 
-
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CAMERA_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d("CameraX", "Quyền camera đã được cấp!");
+            } else {
+                Log.e("CameraX", "Quyền camera bị từ chối!");
+                Toast.makeText(this, "Ứng dụng cần quyền camera để hoạt động!", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu); // R.menu.menu là ID của file menu.xml
-        return true;
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     // Xử lý sự kiện khi người dùng chọn một mục trong menu
@@ -79,6 +112,7 @@ public class Home extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
     private void copyDatabase() {
         try {
             InputStream myInput = getAssets().open(DATA_NAME);
@@ -120,6 +154,9 @@ public class Home extends AppCompatActivity {
         btnAddFace = findViewById(R.id.btnAddFace);
         btnFaceDetection = findViewById(R.id.btnFaceDetection);
         btnListFace = findViewById(R.id.btnListFace);
+
+
+
         btnAddFace.setOnClickListener(v -> {
             Intent intent = new Intent(Home.this, CaptureFaceActivity.class);
             startActivity(intent);

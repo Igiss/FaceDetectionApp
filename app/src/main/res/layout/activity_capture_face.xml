@@ -23,11 +23,12 @@
     <!-- Nút bấm để chụp ảnh -->
     <ImageButton
         android:id="@+id/imgbtnCapture"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_gravity="bottom|center"
         android:layout_marginBottom="40dp"
-        app:srcCompat="@android:drawable/ic_menu_camera"
-        android:contentDescription="Capture face" />
+        android:background="@android:color/transparent"
+        android:contentDescription="Capture face"
+        app:srcCompat="@drawable/photo_camera" />
 
 </FrameLayout>

@@ -3,9 +3,12 @@ package com.example.facedetectionapp;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -79,6 +82,16 @@ public class ListFace extends AppCompatActivity {
             startActivity(intent);
             finish(); //
         });
+        lvDanhsach.setOnItemLongClickListener((parent, view, position, id) -> {
+            // Lấy khuôn mặt đã chọn từ ListView
+            selectedFace = (clsFace) parent.getItemAtPosition(position);
+
+            // Hiển thị hình ảnh trong hộp thoại
+            showImageDialog(selectedFace);
+
+            // Trả về true để chỉ ra rằng sự kiện đã được xử lý
+            return true;
+        });
 
     }
 
@@ -86,17 +99,14 @@ public class ListFace extends AppCompatActivity {
         List<clsFace> faceList = new ArrayList<>();
         SQLiteDatabase db = openOrCreateDatabase("database_FaceDetection.db", MODE_PRIVATE, null);
 
-
-        Cursor cursor = db.rawQuery("SELECT * FROM faces", null);
+        Cursor cursor = db.rawQuery("SELECT id, name, face_image FROM faces", null);
 
         while (cursor.moveToNext()) {
-            String name = cursor.getString(1); // Lấy tên
-            String ma = cursor.getString(0);   // Lấy mã
+            String id = cursor.getString(0);
+            String name = cursor.getString(1);
+            byte[] imageData = cursor.getBlob(2); // Đọc ảnh từ database
 
-            // Khởi tạo đối tượng clsFace với 2 tham số
-            clsFace face = new clsFace(ma, name);
-
-            // Thêm vào danh sách
+            clsFace face = new clsFace(id, name, imageData);
             faceList.add(face);
         }
 
@@ -105,6 +115,27 @@ public class ListFace extends AppCompatActivity {
 
         return faceList;
     }
+
+    private void showImageDialog(clsFace face) {
+        if (face.getFace_image() == null || face.getFace_image().length == 0) {
+            Toast.makeText(this, "Không tìm thấy ảnh!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Bitmap faceBitmap = BitmapFactory.decodeByteArray(face.getFace_image(), 0, face.getFace_image().length);
+
+        ImageView imageView = new ImageView(this);
+        imageView.setImageBitmap(faceBitmap);
+        imageView.setPadding(20, 20, 20, 20);
+        imageView.setAdjustViewBounds(true);
+
+        new AlertDialog.Builder(this)
+                .setTitle("Ảnh khuôn mặt: " + face.getName())
+                .setView(imageView)
+                .setPositiveButton("Đóng", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
     private void DeleteFace() {
         SQLiteDatabase db = openOrCreateDatabase("database_FaceDetection.db", MODE_PRIVATE, null);
 

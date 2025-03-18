@@ -5,41 +5,64 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/gradient_bg"
+    android:gravity="clip_vertical|center_horizontal"
     android:orientation="vertical"
     tools:context=".Home">
 
+    <!-- Toolbar -->
 
     <androidx.appcompat.widget.Toolbar
+        app:title="Hệ thống nhận diện khuôn mặt"
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
+        android:background="#1565C0"
+        app:titleTextColor="#FFFFFF"
+        android:layout_marginBottom="50dp"
         android:theme="?attr/actionBarTheme" />
 
-    <Button
+
+    <!-- Button Thêm khuôn mặt -->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnAddFace"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center"
-        android:layout_marginTop="250dp"
-        android:layout_marginBottom="30dp"
-        android:text="Thêm khuôn mặt mới" />
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="280dp"
+        android:layout_height="50dp"
+        android:layout_marginBottom="15dp"
+        android:backgroundTint="@android:color/white"
+        android:text="Thêm khuôn mặt mới"
+        android:textColor="@android:color/black"
+        app:icon="@drawable/addface"
+        app:iconGravity="start" />
 
-    <Button
+    <!-- Button Danh sách khuôn mặt -->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnListFace"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center"
-        android:layout_marginBottom="30dp"
-        android:text="Danh sách khuôn mặt" />
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="280dp"
+        android:layout_height="50dp"
+        android:layout_marginBottom="15dp"
+        android:backgroundTint="@android:color/white"
 
-    <Button
+        android:text="Danh sách khuôn mặt"
+        android:textColor="@android:color/black"
+        app:icon="@drawable/listface"
+        app:iconGravity="start" />
+
+    <!-- Button Nhận diện khuôn mặt -->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnFaceDetection"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="30dp"
-        android:text="Nhân diện khuôn mặt" />
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="280dp"
+        android:layout_height="50dp"
+        android:layout_marginBottom="15dp"
+        android:backgroundTint="@android:color/white"
+
+        android:text="Nhận diện khuôn mặt"
+        android:textColor="@android:color/black"
+        app:icon="@drawable/detectfaces"
+        app:iconGravity="start" />
 
 
 

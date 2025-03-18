@@ -6,6 +6,8 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.util.Log;
@@ -32,6 +34,7 @@ import com.google.mlkit.vision.face.FaceDetection;
 import com.google.mlkit.vision.face.FaceDetector;
 import com.google.mlkit.vision.face.FaceDetectorOptions;
 
+import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -44,6 +47,7 @@ public class CaptureFaceActivity extends AppCompatActivity {
     private PreviewView previewView;
     private ExecutorService cameraExecutor;
     private ImageCapture imageCapture;
+    private Bitmap capturedBitmap;
     private static final int REQUEST_CAMERA_PERMISSION = 100;
 
     @SuppressLint("MissingInflatedId")
@@ -74,7 +78,6 @@ public class CaptureFaceActivity extends AppCompatActivity {
                 Preview preview = new Preview.Builder().build();
                 preview.setSurfaceProvider(previewView.getSurfaceProvider());
                 imageCapture = new ImageCapture.Builder().build();
-
                 cameraProvider.unbindAll();
                 cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture);
             } catch (Exception e) {
@@ -87,6 +90,7 @@ public class CaptureFaceActivity extends AppCompatActivity {
         imageCapture.takePicture(ContextCompat.getMainExecutor(this), new ImageCapture.OnImageCapturedCallback() {
             @Override
             public void onCaptureSuccess(@NonNull ImageProxy image) {
+                capturedBitmap = imageProxyToBitmap(image); // Lưu ảnh ngay lập tức
                 processImage(image);
                 image.close();
             }
@@ -99,6 +103,7 @@ public class CaptureFaceActivity extends AppCompatActivity {
     }
     @OptIn(markerClass = ExperimentalGetImage.class)
     private void processImage(ImageProxy imageProxy) {
+        Bitmap faceBitmap = imageProxyToBitmap(imageProxy); // Chuyển ảnh từ ImageProxy thành Bitmap
         InputImage image = InputImage.fromMediaImage(imageProxy.getImage(), imageProxy.getImageInfo().getRotationDegrees());
         FaceDetectorOptions options = new FaceDetectorOptions.Builder()
                 .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
@@ -114,12 +119,12 @@ public class CaptureFaceActivity extends AppCompatActivity {
                         return;
                     }
                     float[] featureVector = extractFaceEmbedding(faces.get(0));
-                    showNameInputDialog(featureVector);
+                    showNameInputDialog(featureVector, faceBitmap);
                 })
                 .addOnFailureListener(e -> Log.e("ML Kit", "Lỗi nhận diện khuôn mặt: " + e.getMessage()));
     }
 
-    private void showNameInputDialog(float[] featureVector) {
+    private void showNameInputDialog(float[] featureVector, Bitmap faceBitmap) {
         runOnUiThread(() -> {
             final EditText nameInput = new EditText(CaptureFaceActivity.this);
             nameInput.setHint("Nhập tên");
@@ -131,7 +136,7 @@ public class CaptureFaceActivity extends AppCompatActivity {
                     .setPositiveButton("OK", (dialog, which) -> {
                         String name = nameInput.getText().toString().trim();
                         if (!name.isEmpty()) {
-                            saveImageAndNameToDatabase(name, featureVector);
+                            saveImageAndNameToDatabase(name, featureVector, faceBitmap); // Truyền ảnh vào hàm lưu
                         }
                     })
                     .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())
@@ -139,15 +144,14 @@ public class CaptureFaceActivity extends AppCompatActivity {
         });
     }
 
-    private void saveImageAndNameToDatabase(String name, float[] featureVector) {
-        if (featureVector == null || featureVector.length == 0) {
-            Log.e("Database", "Feature vector trống! Không lưu vào database.");
+    private void saveImageAndNameToDatabase(String name, float[] featureVector, Bitmap faceBitmap) {
+        if (featureVector == null || featureVector.length == 0 || faceBitmap == null) {
+            Log.e("Database", "Feature vector hoặc ảnh trống! Không lưu vào database.");
             return;
         }
 
-        Log.d("Database", "Đang lưu feature vector vào database: " + Arrays.toString(featureVector) + " | Kích thước: " + featureVector.length);
-
         SQLiteDatabase db = openOrCreateDatabase("database_FaceDetection.db", MODE_PRIVATE, null);
+
 
         // Chuyển đổi float[] thành byte[]
         ByteBuffer buffer = ByteBuffer.allocate(featureVector.length * 4);
@@ -156,9 +160,15 @@ public class CaptureFaceActivity extends AppCompatActivity {
             buffer.putFloat(v);
         }
 
+        // Chuyển Bitmap thành byte[] để lưu vào database
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        faceBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+        byte[] imageBytes = outputStream.toByteArray();
+
         ContentValues contentValues = new ContentValues();
         contentValues.put("name", name);
         contentValues.put("face_data", buffer.array());
+        contentValues.put("face_image", imageBytes); // Lưu ảnh
 
         long result = db.insert("faces", null, contentValues);
         db.close();
@@ -169,6 +179,34 @@ public class CaptureFaceActivity extends AppCompatActivity {
             Toast.makeText(this, "Lưu vào database thành công!", Toast.LENGTH_LONG).show();
         }
     }
+    private Bitmap imageProxyToBitmap(ImageProxy imageProxy) {
+        ImageProxy.PlaneProxy[] planes = imageProxy.getPlanes();
+        ByteBuffer buffer = planes[0].getBuffer();
+        buffer.rewind();
+        byte[] bytes = new byte[buffer.capacity()];
+        buffer.get(bytes);
+
+        // Tạo Bitmap từ byte array
+        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+        // Xoay ảnh dựa trên góc xoay của ImageProxy
+        int rotationDegrees = imageProxy.getImageInfo().getRotationDegrees();
+        return rotateBitmap(bitmap, rotationDegrees);
+    }
+
+    private Bitmap rotateBitmap(Bitmap bitmap, int rotationDegrees) {
+        if (rotationDegrees == 0) {
+            return bitmap; // Không cần xoay
+        }
+
+        // Tạo ma trận xoay
+        android.graphics.Matrix matrix = new android.graphics.Matrix();
+        matrix.postRotate(rotationDegrees);
+
+        // Xoay ảnh và trả về kết quả
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+    }
+
 
 
 

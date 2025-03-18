@@ -49,7 +49,6 @@ import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
     private PreviewView previewView;
-    private TextView tvResult;
     private boolean isFrontCamera = false;
     private FaceOverlayView faceOverlayView;
     private ExecutorService cameraExecutor;
