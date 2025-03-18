@@ -56,9 +56,6 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CAMERA_PERMISSION = 100;
     private boolean useFrontCamera = false; // Mặc định dùng camera sau
 
-    static final String DATA_NAME = "database_FaceDetection.db";
-    static final String DB_PATH = "/databases/";
-    SQLiteDatabase database = null;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -90,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
                 startCamera();
             });
         }
-        processCopyDatabase();
+
     }
 
     private float[] extractFaceEmbedding(Face face) {
@@ -143,40 +140,6 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d("FaceRecognition", "Feature vector mới: " + Arrays.toString(featureVector) + " | Kích thước: " + featureVector.length);
         return featureVector;
-    }
-    private void processCopyDatabase() {
-        try {
-            File file = getDatabasePath(DATA_NAME);
-            if (!file.exists()) {
-                copyDatabase();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    private void copyDatabase() {
-        try {
-            InputStream myInput = getAssets().open(DATA_NAME);
-            String outputFilename = getDatabasePath();
-            File fileDb = new File(getApplicationInfo().dataDir + DB_PATH);
-            if (!fileDb.exists()) {
-                fileDb.mkdirs();
-            }
-            OutputStream output = new FileOutputStream(outputFilename);
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = myInput.read(buffer)) > 0) {
-                output.write(buffer, 0, length);
-            }
-            output.flush();
-            output.close();
-            myInput.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    private String getDatabasePath() {
-        return getApplicationInfo().dataDir + DB_PATH + DATA_NAME;
     }
 
     private void startCamera() {

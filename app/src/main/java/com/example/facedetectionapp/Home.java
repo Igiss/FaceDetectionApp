@@ -1,7 +1,9 @@
 package com.example.facedetectionapp;
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
@@ -14,8 +16,15 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class Home extends AppCompatActivity {
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 
+public class Home extends AppCompatActivity {
+    static final String DATA_NAME = "database_FaceDetection.db";
+    static final String DB_PATH = "/databases/";
+    SQLiteDatabase database = null;
     Button btnAddFace,btnFaceDetection, btnListFace;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +36,10 @@ public class Home extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        processCopyDatabase();
         handleEvents();
+
+
 
     }
 
@@ -56,6 +68,47 @@ public class Home extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+    private void processCopyDatabase() {
+        try {
+            File file = getDatabasePath(DATA_NAME);
+            if (!file.exists()) {
+                copyDatabase();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    private void copyDatabase() {
+        try {
+            InputStream myInput = getAssets().open(DATA_NAME);
+            String outputFilename = getDatabasePath();
+            File fileDb = new File(getApplicationInfo().dataDir + DB_PATH);
+            if (!fileDb.exists()) {
+                fileDb.mkdirs();
+            }
+            OutputStream output = new FileOutputStream(outputFilename);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = myInput.read(buffer)) > 0) {
+                output.write(buffer, 0, length);
+            }
+            output.flush();
+            output.close();
+            myInput.close();
+            File copiedFile = new File(outputFilename);
+            if (copiedFile.exists()) {
+                Log.d("Database", "Sao chép database thành công! Kích thước: " + copiedFile.length() + " bytes");
+            } else {
+                Log.e("Database", "Database không tồn tại sau khi sao chép!");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e("Database", "Lỗi khi sao chép database: " + e.getMessage());
+        }
+    }
+    private String getDatabasePath() {
+        return getApplicationInfo().dataDir + DB_PATH + DATA_NAME;
     }
 
     // Phương thức hiển thị thông báo
