@@ -63,7 +63,7 @@ public class NameFace extends SQLiteOpenHelper {
         }
 
         cursor.close();
-        return bestSimilarity >= 0.993 ? bestMatch : "Error";
+        return bestSimilarity >= 0.998 ? bestMatch : "Error";
     }
 
     private float[] convertBlobToFeatureVector(byte[] blob) {
