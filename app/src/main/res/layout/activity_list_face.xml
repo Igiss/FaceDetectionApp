@@ -36,17 +36,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:padding="16dp"
+        android:padding="20dp"
         android:orientation="horizontal">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnDeleteFace"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"
-            android:layout_height="50dp"
+            android:layout_height="60dp"
             android:layout_weight="1"
             android:text="Xóa Khuôn Mặt"
-
             app:cornerRadius="8dp"
             app:icon="@drawable/delete"
             app:iconGravity="start" />
@@ -59,10 +58,9 @@
             android:id="@+id/btnAddFace"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"
-            android:layout_height="50dp"
+            android:layout_height="60dp"
             android:layout_weight="1"
             android:text="Thêm Khuôn Mặt"
-
             app:cornerRadius="8dp"
             app:icon="@drawable/addface"
             app:iconGravity="start" />
