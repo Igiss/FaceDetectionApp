@@ -136,7 +136,7 @@ public class CaptureFaceActivity extends AppCompatActivity {
                     .setPositiveButton("OK", (dialog, which) -> {
                         String name = nameInput.getText().toString().trim();
                         if (!name.isEmpty()) {
-                            saveImageAndNameToDatabase(name, featureVector, faceBitmap); // Truyền ảnh vào hàm lưu
+                            saveImageAndNameToDatabase(name, featureVector, capturedBitmap); // Truyền ảnh vào hàm lưu
                         }
                     })
                     .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())
