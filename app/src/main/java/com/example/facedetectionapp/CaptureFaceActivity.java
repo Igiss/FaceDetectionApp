@@ -90,9 +90,9 @@ public class CaptureFaceActivity extends AppCompatActivity {
         imageCapture.takePicture(ContextCompat.getMainExecutor(this), new ImageCapture.OnImageCapturedCallback() {
             @Override
             public void onCaptureSuccess(@NonNull ImageProxy image) {
-                capturedBitmap = imageProxyToBitmap(image); // Lưu ảnh ngay lập tức
-                processImage(image);
+                Bitmap faceBitmap = imageProxyToBitmap(image); // Lưu ảnh ngay lập tức
                 image.close();
+                processImage(faceBitmap);
             }
 
             @Override
@@ -102,9 +102,8 @@ public class CaptureFaceActivity extends AppCompatActivity {
         });
     }
     @OptIn(markerClass = ExperimentalGetImage.class)
-    private void processImage(ImageProxy imageProxy) {
-        Bitmap faceBitmap = imageProxyToBitmap(imageProxy); // Chuyển ảnh từ ImageProxy thành Bitmap
-        InputImage image = InputImage.fromMediaImage(imageProxy.getImage(), imageProxy.getImageInfo().getRotationDegrees());
+    private void processImage(Bitmap faceBitmap) {
+        InputImage image = InputImage.fromBitmap(faceBitmap, 0);
         FaceDetectorOptions options = new FaceDetectorOptions.Builder()
                 .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
                 .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
@@ -119,7 +118,7 @@ public class CaptureFaceActivity extends AppCompatActivity {
                         return;
                     }
                     float[] featureVector = extractFaceEmbedding(faces.get(0));
-                    showNameInputDialog(featureVector, faceBitmap);
+                    showNameInputDialog(featureVector, faceBitmap); // ✅ Truyền ảnh đúng vào Dialog
                 })
                 .addOnFailureListener(e -> Log.e("ML Kit", "Lỗi nhận diện khuôn mặt: " + e.getMessage()));
     }
@@ -136,7 +135,7 @@ public class CaptureFaceActivity extends AppCompatActivity {
                     .setPositiveButton("OK", (dialog, which) -> {
                         String name = nameInput.getText().toString().trim();
                         if (!name.isEmpty()) {
-                            saveImageAndNameToDatabase(name, featureVector, capturedBitmap); // Truyền ảnh vào hàm lưu
+                            saveImageAndNameToDatabase(name, featureVector, faceBitmap); // Truyền ảnh vào hàm lưu
                         }
                     })
                     .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())

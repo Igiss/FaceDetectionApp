@@ -1,5 +1,6 @@
 package com.example.facedetectionapp;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -8,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -27,7 +29,7 @@ import java.util.List;
 public class ListFace extends AppCompatActivity {
 
     ListView lvDanhsach;
-    Button btnDeleteFace,btnAddFace;
+    Button btnDeleteFace,btnAddFace,btnUpdateFace;
     ArrayAdapter<clsFace> adapterUser;
     clsFace selectedFace;
 
@@ -55,6 +57,14 @@ public class ListFace extends AppCompatActivity {
     private void handleEvent() {
         btnDeleteFace = findViewById(R.id.btnDeleteFace);
         btnAddFace = findViewById(R.id.btnAddFace);
+        btnUpdateFace = findViewById(R.id.btnUpdateFace);
+        btnUpdateFace.setOnClickListener(v -> {
+            if (selectedFace != null) {
+                showUpdateDialog();
+            } else {
+                Toast.makeText(ListFace.this, "Vui lòng chọn khuôn mặt để cập nhật.", Toast.LENGTH_SHORT).show();
+            }
+        });
         btnDeleteFace.setOnClickListener(v -> {
             if (selectedFace != null) {
                 // Hiển thị hộp thoại xác nhận
@@ -80,7 +90,7 @@ public class ListFace extends AppCompatActivity {
             Intent intent = new Intent(ListFace.this, CaptureFaceActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
-            finish(); //
+
         });
         lvDanhsach.setOnItemLongClickListener((parent, view, position, id) -> {
             // Lấy khuôn mặt đã chọn từ ListView
@@ -168,6 +178,47 @@ public class ListFace extends AppCompatActivity {
 
         db.close();
     }
+
+    private void showUpdateDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Cập nhật tên");
+
+        final EditText input = new EditText(this);
+        input.setText(selectedFace.getName());
+        builder.setView(input);
+
+        builder.setPositiveButton("Lưu", (dialog, which) -> {
+            String newName = input.getText().toString().trim();
+            if (!newName.isEmpty()) {
+                updateFaceName(newName);
+            } else {
+                Toast.makeText(this, "Tên không được để trống!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss());
+        builder.show();
+    }
+
+    // Cập nhật tên trong database
+    private void updateFaceName(String newName) {
+        SQLiteDatabase db = openOrCreateDatabase("database_FaceDetection.db", MODE_PRIVATE, null);
+
+        ContentValues values = new ContentValues();
+        values.put("name", newName);
+
+        int rowsUpdated = db.update("faces", values, "id = ?", new String[]{selectedFace.getId()});
+        db.close();
+
+        if (rowsUpdated > 0) {
+            selectedFace.setName(newName); // Cập nhật dữ liệu trong danh sách
+            adapterUser.notifyDataSetChanged(); // Cập nhật giao diện
+            Toast.makeText(this, "Cập nhật thành công!", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Cập nhật thất bại!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
 
 

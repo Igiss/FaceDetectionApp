@@ -24,45 +24,59 @@
     <ListView
         android:id="@+id/lvDanhsach"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="509dp"
         android:layout_margin="10dp"
+        android:layout_weight="1"
         android:divider="@android:color/darker_gray"
-        android:dividerHeight="1dp"
-        />
+        android:dividerHeight="1dp" />
 
     <!-- Hàng chứa các nút bấm -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:padding="20dp"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:padding="20dp">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnDeleteFace"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"
-            android:layout_height="60dp"
+            android:layout_height="55dp"
             android:layout_weight="1"
-            android:text="Xóa Khuôn Mặt"
+            android:text="Delete"
             app:cornerRadius="8dp"
             app:icon="@drawable/delete"
             app:iconGravity="start" />
 
         <View
             android:layout_width="10dp"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAddFace"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"
-            android:layout_height="60dp"
+            android:layout_height="55dp"
             android:layout_weight="1"
-            android:text="Thêm Khuôn Mặt"
+            android:text="Add"
             app:cornerRadius="8dp"
             app:icon="@drawable/addface"
+            app:iconGravity="start" />
+
+        <View
+            android:layout_width="10dp"
+            android:layout_height="match_parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnUpdateFace"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:layout_weight="1"
+            android:text="Update"
+            app:cornerRadius="8dp"
+            app:icon="@drawable/update"
             app:iconGravity="start" />
 
     </LinearLayout>
