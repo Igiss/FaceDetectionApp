@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
 
         cameraExecutor = Executors.newSingleThreadExecutor();
 
-        // Nếu có nút chuyển camera, xử lý sự kiện (ví dụ: imgBtnSwitchCamera)
+        //nút chuyển camera
         ImageButton btnSwitchCamera = findViewById(R.id.imgBtnSwitchCamera);
         if (btnSwitchCamera != null) {
             btnSwitchCamera.setOnClickListener(v -> {
@@ -89,7 +89,90 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private float[] extractFaceEmbedding(Face face) {
+    private void startCamera() {
+        ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
+        cameraProviderFuture.addListener(() -> {
+            try {
+                ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
+
+                CameraSelector cameraSelector = new CameraSelector.Builder()
+                        .requireLensFacing(useFrontCamera ? CameraSelector.LENS_FACING_BACK : CameraSelector.LENS_FACING_FRONT)
+                        .build();
+
+                isFrontCamera = useFrontCamera;
+
+                Preview preview = new Preview.Builder().build();
+                preview.setSurfaceProvider(previewView.getSurfaceProvider());
+
+                ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
+                        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                        .build();
+                imageAnalysis.setAnalyzer(cameraExecutor, this::detectFaces);
+
+                cameraProvider.unbindAll();
+                Camera camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis);
+            } catch (Exception e) {
+                Log.e("CameraX", "Lỗi khi khởi động camera: " + e.getMessage());
+            }
+        }, ContextCompat.getMainExecutor(this));
+    }
+
+    @OptIn(markerClass = ExperimentalGetImage.class)
+    private void detectFaces(ImageProxy imageProxy) {
+        if (imageProxy.getImage() == null) {
+            imageProxy.close();
+            return;
+        } // kiểm tra ảnh có null
+
+        try {
+            InputImage image = InputImage.fromMediaImage(imageProxy.getImage()// chuển đổi ảnh ImageProxy thành InputImage do ml kit yêu cầu InputImage
+                    , imageProxy.getImageInfo().getRotationDegrees());// giúp ảnh quay đúng góc
+
+            FaceDetectorOptions options = new FaceDetectorOptions.Builder()
+                    .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE) //Độ chính xác cao
+                    .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL) // Phát hiện các đặc điểm như mắt, mũi, miệng
+                    .setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)   // Nhận diện đường viền khuôn mặt
+                    .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL) //Phân loại trạng thái khuôn mặt (mắt mở, miệng cười, v.v.)
+                    .build();
+
+            FaceDetector detector = FaceDetection.getClient(options);
+
+            detector.process(image)
+                    .addOnSuccessListener(faces -> {
+                        if (faces.isEmpty()) {
+                            Log.e("FaceRecognition", "No faces detected!");
+                            faceOverlayView.setFaces(faces, new ArrayList<>(), image.getWidth(), image.getHeight(), isFrontCamera);// cập nhật faceOverlayView
+                            return;
+                        }
+
+                        List<String> recognizedNameList = new ArrayList<>(); //Tạo một danh sách lưu tên khuôn mặt được nhận diện
+                        for (Face face : faces) { // Duyệt qua từng khuôn mặt được phát hiện
+                            float[] featureVector = extractFaceEmbedding(face); // Trích xuất vector đặc trưng
+
+                            if (featureVector.length == 0) { // nếu length = 0 thì ko trích xuất đc đặc trưng
+                                Log.e("FaceRecognition", "Feature vector is empty!");
+                                recognizedNameList.add("Error");
+                                continue;
+                            }
+
+                            Log.d("FaceRecognition", "Extracted feature vector: " + Arrays.toString(featureVector));
+
+                            NameFace nameFace = new NameFace(getApplicationContext());// khởi tạo đối tượng NameFace để truy cập CSDL
+                            String recognizedName = nameFace.getNameFromEmbedding(featureVector);// lấy tên khuôn mặt dựa trên vector đặc trưng
+                            recognizedNameList.add(recognizedName); // Kết quả được thêm vào recognizedName
+                        }
+
+                        faceOverlayView.setFaces(faces, recognizedNameList, image.getWidth(), image.getHeight(), isFrontCamera); // cập nhật faceOverlayView
+                    })
+                    .addOnFailureListener(e -> Log.e("ML Kit", "Lỗi phát hiện khuôn mặt: " + e.getMessage()))// nếu có lỗi xảy ra trong quá trình phát hiện khuôn mặt
+                    .addOnCompleteListener(task -> imageProxy.close());// đóng ảnh sau khi xử lý
+        } catch (Exception e) {
+            Log.e("ML Kit", "Exception trong detectFaces: " + e.getMessage());
+            imageProxy.close();
+        }
+    }
+
+    private float[] extractFaceEmbedding(Face face)  {// lấy khuôn mặt Từ ML kit
         if (face == null) {
             Log.e("FaceRecognition", "Face object is null!");
             return new float[0];
@@ -128,11 +211,11 @@ public class MainActivity extends AppCompatActivity {
         // Đảm bảo feature vector luôn có đúng 128 phần tử
         float[] featureVector = new float[128];
         for (int i = 0; i < 64; i++) {
-            if (i < keyPoints.size()) {
+            if (i < keyPoints.size())  { //Nếu đủ keypoints
                 featureVector[i * 2] = keyPoints.get(i).x;
                 featureVector[i * 2 + 1] = keyPoints.get(i).y;
             } else {
-                featureVector[i * 2] = -1.0f; // Gán giá trị -1 thay vì 0.0 để dễ debug
+                featureVector[i * 2] = -1.0f; // Nếu không đủ keypoints gàn = 1.0f do dễ dàng nhận diện và bỏ qua khi so sánh
                 featureVector[i * 2 + 1] = -1.0f;
             }
         }
@@ -141,97 +224,10 @@ public class MainActivity extends AppCompatActivity {
         return featureVector;
     }
 
-    private void startCamera() {
-        ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
-        cameraProviderFuture.addListener(() -> {
-            try {
-                ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
-
-                CameraSelector cameraSelector = new CameraSelector.Builder()
-                        .requireLensFacing(useFrontCamera ? CameraSelector.LENS_FACING_BACK : CameraSelector.LENS_FACING_FRONT)
-                        .build();
-
-                isFrontCamera = useFrontCamera;
-
-                Preview preview = new Preview.Builder().build();
-                preview.setSurfaceProvider(previewView.getSurfaceProvider());
-
-                ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
-                        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                        .build();
-                imageAnalysis.setAnalyzer(cameraExecutor, this::detectFaces);
-
-                cameraProvider.unbindAll();
-                Camera camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis);
-            } catch (Exception e) {
-                Log.e("CameraX", "Lỗi khi khởi động camera: " + e.getMessage());
-            }
-        }, ContextCompat.getMainExecutor(this));
-    }
-
-    @OptIn(markerClass = ExperimentalGetImage.class)
-    private void detectFaces(ImageProxy imageProxy) {
-        if (imageProxy.getImage() == null) {
-            imageProxy.close();
-            return;
-        }
-
-        try {
-            InputImage image = InputImage.fromMediaImage(
-                    imageProxy.getImage(),
-                    imageProxy.getImageInfo().getRotationDegrees()
-            );
-
-            FaceDetectorOptions options = new FaceDetectorOptions.Builder()
-                    .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
-                    .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL) // Quan trọng!
-                    .setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)   // Thêm cái này để lấy đường viền khuôn mặt
-                    .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
-                    .build();
-
-            FaceDetector detector = FaceDetection.getClient(options);
-
-            detector.process(image)
-                    .addOnSuccessListener(faces -> {
-                        if (faces.isEmpty()) {
-                            Log.e("FaceRecognition", "No faces detected!");
-                            faceOverlayView.setFaces(faces, new ArrayList<>(), image.getWidth(), image.getHeight(), isFrontCamera);
-                            return;
-                        }
-
-                        List<String> recognizedNameList = new ArrayList<>();
-                        for (Face face : faces) {
-                            float[] featureVector = extractFaceEmbedding(face);
-
-                            if (featureVector.length == 0) {
-                                Log.e("FaceRecognition", "Feature vector is empty!");
-                                recognizedNameList.add("Error");
-                                continue;
-                            }
-
-                            Log.d("FaceRecognition", "Extracted feature vector: " + Arrays.toString(featureVector));
-
-                            NameFace nameFace = new NameFace(getApplicationContext());
-                            String recognizedName = nameFace.getNameFromEmbedding(featureVector);
-                            recognizedNameList.add(recognizedName);
-                        }
-
-                        faceOverlayView.setFaces(faces, recognizedNameList, image.getWidth(), image.getHeight(), isFrontCamera);
-                    })
-                    .addOnFailureListener(e -> Log.e("ML Kit", "Lỗi phát hiện khuôn mặt: " + e.getMessage()))
-                    .addOnCompleteListener(task -> imageProxy.close());
-        } catch (Exception e) {
-            Log.e("ML Kit", "Exception trong detectFaces: " + e.getMessage());
-            imageProxy.close();
-        }
-    }
-
-
-
     @Override
     protected void onDestroy() {
-        super.onDestroy();
-        cameraExecutor.shutdown();
+        super.onDestroy(); // Giải phóng tài nguyên khi Activity bị hủy.
+        cameraExecutor.shutdown(); // tắt camera
     }
 
     @Override

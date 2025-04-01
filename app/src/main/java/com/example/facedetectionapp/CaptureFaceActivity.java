@@ -47,7 +47,6 @@ public class CaptureFaceActivity extends AppCompatActivity {
     private PreviewView previewView;
     private ExecutorService cameraExecutor;
     private ImageCapture imageCapture;
-    private Bitmap capturedBitmap;
     private static final int REQUEST_CAMERA_PERMISSION = 100;
 
     @SuppressLint("MissingInflatedId")

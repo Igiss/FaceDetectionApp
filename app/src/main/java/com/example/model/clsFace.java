@@ -34,9 +34,6 @@ public class clsFace {
         return face_image;
     }
 
-    public void setFace_image(byte[] face_image) {
-        this.face_image = face_image;
-    }
 
     @Override
     public String toString() {

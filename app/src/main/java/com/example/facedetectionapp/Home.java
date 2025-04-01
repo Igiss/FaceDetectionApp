@@ -45,8 +45,7 @@ public class Home extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+
         // Kiểm tra quyền Camera
         checkCameraPermission();
         processCopyDatabase();
@@ -83,25 +82,7 @@ public class Home extends AppCompatActivity {
     }
 
     // Xử lý sự kiện khi người dùng chọn một mục trong menu
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int itemId = item.getItemId();
 
-        // Kiểm tra ID của mục được chọn
-        if (item.getTitle().equals("details")) {
-            // Xử lý khi chọn "details"
-            // Ví dụ: Hiển thị thông báo
-            showToast("Bạn đã chọn Details");
-            return true;
-        } else if (item.getTitle().equals("information")) {
-            // Xử lý khi chọn "information"
-            // Ví dụ: Hiển thị thông báo
-            showToast("Bạn đã chọn Information");
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
     private void processCopyDatabase() {
         try {
             File file = getDatabasePath(DATA_NAME);
@@ -146,9 +127,7 @@ public class Home extends AppCompatActivity {
     }
 
     // Phương thức hiển thị thông báo
-    private void showToast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-    }
+
 
     private void handleEvents() {
         btnAddFace = findViewById(R.id.btnAddFace);
