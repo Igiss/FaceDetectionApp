@@ -75,14 +75,6 @@ public class Home extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    // Xử lý sự kiện khi người dùng chọn một mục trong menu
-
     private void processCopyDatabase() {
         try {
             File file = getDatabasePath(DATA_NAME);

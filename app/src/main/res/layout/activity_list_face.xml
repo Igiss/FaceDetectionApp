@@ -30,7 +30,7 @@
         android:divider="@android:color/darker_gray"
         android:dividerHeight="1dp" />
 
-    <!-- Hàng chứa các nút bấm -->
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

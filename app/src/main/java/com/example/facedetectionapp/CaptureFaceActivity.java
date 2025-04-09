@@ -161,7 +161,7 @@ public class CaptureFaceActivity extends AppCompatActivity {
         // Chuyển Bitmap thành byte[] để lưu vào database
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         faceBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-        byte[] imageBytes = outputStream.toByteArray();
+            byte[] imageBytes = outputStream.toByteArray();
 
         ContentValues contentValues = new ContentValues();
         contentValues.put("name", name);
